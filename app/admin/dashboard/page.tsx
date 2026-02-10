@@ -76,7 +76,6 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      // ✅ API returns ARRAY directly
       setApplications(Array.isArray(json) ? json : []);
     } catch {
       setErrorApps("Network error while loading applications");
@@ -100,7 +99,6 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      // ✅ API returns ARRAY directly
       setPosts(Array.isArray(json) ? json : []);
     } catch {
       setErrorPosts("Network error while loading posts");
@@ -200,15 +198,20 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="mb-8 flex justify-between">
+        <header className="mb-8 flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
-            <p className="text-sm text-slate-600">Manage posts & applications</p>
+            <p className="text-sm text-slate-600">
+              Manage posts & applications
+            </p>
           </div>
-          <button onClick={handleLogout} className="text-sm font-semibold text-red-600">
-  Logout
-</button>
 
+          <button
+            onClick={handleLogout}
+            className="text-sm font-semibold text-red-600"
+          >
+            Logout
+          </button>
         </header>
 
         {/* POSTS */}
@@ -237,6 +240,7 @@ export default function AdminDashboardPage() {
               <option value="research">Research</option>
               <option value="club">ACM</option>
             </select>
+
             <button
               disabled={submitting}
               className="rounded bg-black px-4 py-2 text-white"
@@ -251,7 +255,10 @@ export default function AdminDashboardPage() {
             <p className="text-sm text-slate-500">No posts yet.</p>
           ) : (
             posts.map((p) => (
-              <div key={p.id} className="mb-3 flex justify-between border-b pb-2">
+              <div
+                key={p.id}
+                className="mb-3 flex justify-between border-b pb-2"
+              >
                 <div>
                   <p className="font-semibold">{p.title}</p>
                   <p className="text-xs text-slate-500">
