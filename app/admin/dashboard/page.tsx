@@ -28,15 +28,17 @@ type Post = {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+
   const [isChecking, setIsChecking] = useState(true);
 
   const [applications, setApplications] = useState<Application[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
 
-  const [loading, setLoading] = useState(true);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [postsError, setPostsError] = useState<string | null>(null);
+  const [loadingApps, setLoadingApps] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+
+  const [errorApps, setErrorApps] = useState<string | null>(null);
+  const [errorPosts, setErrorPosts] = useState<string | null>(null);
 
   const [formTitle, setFormTitle] = useState("");
   const [formDescription, setFormDescription] = useState("");
@@ -48,71 +50,74 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     const isAdmin = localStorage.getItem("isAdmin");
+
     if (isAdmin !== "true") {
       router.push("/admin");
       return;
     }
 
     setIsChecking(false);
-    fetchApplications();
     fetchPosts();
+    fetchApplications();
   }, [router]);
 
   /* ================= APPLICATIONS ================= */
 
   const fetchApplications = async () => {
-    setLoading(true);
-    setError(null);
+    setLoadingApps(true);
+    setErrorApps(null);
 
     try {
       const res = await fetch("/api/admin/applications");
       const json = await res.json();
 
       if (!res.ok) {
-        setError(json.error || "Failed to load applications.");
+        setErrorApps("Failed to load applications");
         return;
       }
 
-      setApplications(json.applications || []);
+      // ✅ API returns ARRAY directly
+      setApplications(Array.isArray(json) ? json : []);
     } catch {
-      setError("Network error while loading applications.");
+      setErrorApps("Network error while loading applications");
     } finally {
-      setLoading(false);
+      setLoadingApps(false);
     }
   };
 
   /* ================= POSTS ================= */
 
   const fetchPosts = async () => {
-    setPostsLoading(true);
-    setPostsError(null);
+    setLoadingPosts(true);
+    setErrorPosts(null);
 
     try {
       const res = await fetch("/api/admin/posts");
       const json = await res.json();
 
       if (!res.ok) {
-        setPostsError(json.error || "Failed to load posts.");
+        setErrorPosts("Failed to load posts");
         return;
       }
 
-      setPosts(json.posts || []);
+      // ✅ API returns ARRAY directly
+      setPosts(Array.isArray(json) ? json : []);
     } catch {
-      setPostsError("Network error while loading posts.");
+      setErrorPosts("Network error while loading posts");
     } finally {
-      setPostsLoading(false);
+      setLoadingPosts(false);
     }
   };
 
   /* ================= POST FORM ================= */
 
-  const handlePostSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+  const handlePostSubmit = async (e: FormEvent) => {
+    e.preventDefault();
     setSubmitting(true);
-    setPostsError(null);
+    setErrorPosts(null);
 
     if (!formTitle || !formDescription || !formType) {
-      setPostsError("All fields are required.");
+      setErrorPosts("All fields are required");
       setSubmitting(false);
       return;
     }
@@ -129,10 +134,8 @@ export default function AdminDashboardPage() {
         }),
       });
 
-      const json = await res.json();
-
       if (!res.ok) {
-        setPostsError(json.error || "Failed to save post.");
+        setErrorPosts("Failed to save post");
         return;
       }
 
@@ -142,7 +145,7 @@ export default function AdminDashboardPage() {
       setEditingPostId(null);
       fetchPosts();
     } catch {
-      setPostsError("Network error while saving post.");
+      setErrorPosts("Network error while saving post");
     } finally {
       setSubmitting(false);
     }
@@ -159,10 +162,10 @@ export default function AdminDashboardPage() {
       if (res.ok) {
         setPosts((prev) => prev.filter((p) => p.id !== id));
       } else {
-        setPostsError("Failed to delete post.");
+        setErrorPosts("Failed to delete post");
       }
     } catch {
-      setPostsError("Network error while deleting post.");
+      setErrorPosts("Network error while deleting post");
     }
   };
 
@@ -187,7 +190,11 @@ export default function AdminDashboardPage() {
   /* ================= UI ================= */
 
   if (isChecking) {
-    return <div className="flex min-h-screen items-center justify-center">Loading…</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Checking admin access…
+      </div>
+    );
   }
 
   return (
@@ -199,8 +206,9 @@ export default function AdminDashboardPage() {
             <p className="text-sm text-slate-600">Manage posts & applications</p>
           </div>
           <button onClick={handleLogout} className="text-sm font-semibold text-red-600">
-            Logout
-          </button>
+  Logout
+</button>
+
         </header>
 
         {/* POSTS */}
@@ -229,23 +237,33 @@ export default function AdminDashboardPage() {
               <option value="research">Research</option>
               <option value="club">ACM</option>
             </select>
-            <button className="rounded bg-black px-4 py-2 text-white">
+            <button
+              disabled={submitting}
+              className="rounded bg-black px-4 py-2 text-white"
+            >
               {editingPostId ? "Update" : "Create"}
             </button>
           </form>
 
-          {postsLoading ? (
+          {loadingPosts ? (
             <p>Loading posts…</p>
+          ) : posts.length === 0 ? (
+            <p className="text-sm text-slate-500">No posts yet.</p>
           ) : (
             posts.map((p) => (
               <div key={p.id} className="mb-3 flex justify-between border-b pb-2">
                 <div>
                   <p className="font-semibold">{p.title}</p>
-                  <p className="text-xs text-slate-500">{formatDate(p.created_at)}</p>
+                  <p className="text-xs text-slate-500">
+                    {formatDate(p.created_at)}
+                  </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button onClick={() => handleEditPost(p)}>Edit</button>
-                  <button onClick={() => handleDeletePost(p.id)} className="text-red-600">
+                  <button
+                    onClick={() => handleDeletePost(p.id)}
+                    className="text-red-600"
+                  >
                     Delete
                   </button>
                 </div>
@@ -258,15 +276,21 @@ export default function AdminDashboardPage() {
         <section className="rounded-xl bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold">Applications</h2>
 
-          {loading ? (
+          {loadingApps ? (
             <p>Loading applications…</p>
+          ) : applications.length === 0 ? (
+            <p className="text-sm text-slate-500">No applications yet.</p>
           ) : (
             applications.map((a) => (
               <div key={a.id} className="border-b py-3">
                 <p className="font-semibold">{a.student_name}</p>
-                <p className="text-sm">{a.post_title}</p>
+                <p className="text-sm text-slate-600">{a.post_title}</p>
                 {a.resume_url && (
-                  <a href={a.resume_url} target="_blank" className="text-indigo-600">
+                  <a
+                    href={a.resume_url}
+                    target="_blank"
+                    className="text-indigo-600 text-sm"
+                  >
                     View Resume
                   </a>
                 )}
