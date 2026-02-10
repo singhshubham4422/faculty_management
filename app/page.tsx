@@ -25,7 +25,7 @@ export default function Home() {
 
       if (error) {
         console.error(error);
-        setError("Failed to load opportunities.");
+        setError("Unable to load opportunities. Please try again later.");
       } else {
         setPosts((data ?? []) as Post[]);
       }
@@ -40,167 +40,163 @@ export default function Home() {
   const clubPosts = posts.filter((p) => p.type === "club");
   const tabPosts = activeTab === "research" ? researchPosts : clubPosts;
 
+  // VISUAL ONLY - Mock filters for Research Tab (No backend logic)
+  const RESEARCH_DOMAINS = ["AI / ML", "Systems", "Cybersecurity", "Data Science", "HCI", "Open to All"];
+
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <main className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-6 py-12">
-        <section className="card-surface relative overflow-hidden rounded-3xl bg-white px-8 py-10 shadow-xl ring-1 ring-slate-200">
-          <div className="absolute inset-x-10 bottom-0 h-32 rounded-t-[32px] bg-gradient-to-r from-slate-50 via-indigo-50 to-slate-50" />
-          <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-2xl space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-1 text-xs font-medium text-indigo-700">
-                <span className="h-2 w-2 rounded-full bg-indigo-500" />
-                New opportunities are added by faculty
-              </div>
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-                Research Opportunities & ACM Activities
-              </h1>
-              <p className="text-base leading-relaxed text-slate-600">
-                Discover faculty-led research roles and professional ACM activities. Browse by focus area and apply directly to opportunities that match your interests.
-              </p>
-              <div className="flex flex-wrap gap-3 text-sm text-slate-600">
-                <div className="flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2">
-                  <span className="h-2 w-2 rounded-full bg-blue-600" /> Research placements
-                </div>
-                <div className="flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2">
-                  <span className="h-2 w-2 rounded-full bg-amber-500" /> ACM professional growth
-                </div>
-              </div>
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+
+      {/* 1. MINIMAL ACADEMIC HEADER */}
+      <header className="border-b border-slate-200 bg-white">
+        <div className="container-academic flex h-20 items-center">
+          <div className="flex items-center gap-3">
+            {/* Simple Academic Logo Placeholder */}
+            <div className="flex h-10 w-10 items-center justify-center bg-indigo-900 text-white font-serif font-bold text-xl rounded-sm">
+              S
             </div>
-            <div className="w-full max-w-xs self-start rounded-2xl bg-slate-900 px-6 py-5 text-white shadow-lg">
-              <p className="text-sm text-slate-200">Ready to contribute?</p>
-              <p className="mt-2 text-xl font-semibold">Apply to openings curated by faculty mentors.</p>
-              <div className="mt-4 flex items-center justify-between text-sm text-slate-200/80">
-                <div>
-                  <p className="text-2xl font-semibold text-white">{posts.length || "—"}</p>
-                  <p>Open postings</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold text-white">{researchPosts.length || "—"}</p>
-                  <p>Research roles</p>
-                </div>
-              </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold tracking-tight text-slate-900 leading-none">
+                SRM ACM SIGAPP
+              </span>
+              <span className="text-xs font-medium text-slate-500 mt-1 uppercase tracking-wider">
+                Academic & Professional Opportunities
+              </span>
             </div>
           </div>
-        </section>
+          {/* Right side intentionally left empty as per strict guidelines */}
+        </div>
+      </header>
 
-        <section id="opportunities" className="space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-medium text-indigo-700">Open roles</p>
-              <h2 className="text-xl font-semibold text-slate-900">Explore and apply in a few clicks</h2>
-            </div>
-            <div className="flex rounded-full bg-slate-100 p-1 text-sm font-medium">
-              <button
-                onClick={() => setActiveTab("research")}
-                className={`pill px-4 py-2 transition ${
-                  activeTab === "research"
-                    ? "bg-white text-slate-900 shadow"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                Research Opportunities
-                <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{researchPosts.length}</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("acm")}
-                className={`pill px-4 py-2 transition ${
-                  activeTab === "acm"
-                    ? "bg-white text-slate-900 shadow"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                ACM Professional Activities
-                <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{clubPosts.length}</span>
-              </button>
-            </div>
-          </div>
+      {/* 2. TOP-LEVEL PAGE CONTROLLER TABS */}
+      <nav className="border-b border-slate-100 bg-slate-50/50 sticky top-0 z-40 backdrop-blur-md">
+        <div className="container-academic flex gap-8">
+          <button
+            onClick={() => setActiveTab("research")}
+            className={`py-4 text-sm font-semibold border-b-2 transition-colors ${activeTab === "research"
+                ? "border-indigo-900 text-indigo-900"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
+          >
+            Research Opportunities
+          </button>
+          <button
+            onClick={() => setActiveTab("acm")}
+            className={`py-4 text-sm font-semibold border-b-2 transition-colors ${activeTab === "acm"
+                ? "border-indigo-900 text-indigo-900"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
+          >
+            ACM Activities
+          </button>
+        </div>
+      </nav>
 
-          {/* Loading state */}
+      <main className="container-academic py-12 min-h-[600px]">
+
+        {/* 3. DYNAMIC CONTENT AREA BASED ON TAB */}
+
+        {/* HEADER SECTION */}
+        <div className="mb-10 max-w-4xl">
+          <h1 className="text-3xl font-bold text-slate-900 mb-3">
+            {activeTab === "research" ? "Research Opportunities" : "ACM Professional Activities"}
+          </h1>
+          <p className="text-lg text-slate-600 leading-relaxed max-w-2xl">
+            {activeTab === "research"
+              ? "Faculty-curated research positions across academic domains. Collaborate on cutting-edge projects."
+              : "SIG initiatives, workshops, hackathons, and student-led professional development programs."
+            }
+          </p>
+
+          {/* Research Filters (Visual Only) */}
+          {activeTab === "research" && (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {RESEARCH_DOMAINS.map((domain) => (
+                <span key={domain} className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-full text-xs font-medium text-slate-600 cursor-default">
+                  {domain}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* LISTINGS GRID */}
+        <div>
           {loading && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="card-surface animate-pulse rounded-2xl p-5"
-                >
-                  <div className="h-3 w-24 rounded-full bg-slate-200" />
-                  <div className="mt-3 h-5 w-3/4 rounded-full bg-slate-200" />
-                  <div className="mt-2 h-3 w-full rounded-full bg-slate-200" />
-                  <div className="mt-2 h-3 w-2/3 rounded-full bg-slate-200" />
-                  <div className="mt-5 h-10 w-full rounded-lg bg-slate-200" />
-                </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-64 rounded bg-slate-50 border border-slate-100 animate-pulse" />
               ))}
             </div>
           )}
 
-          {/* Error state */}
-          {error && !loading && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error && (
+            <div className="p-4 border border-red-200 bg-red-50 text-red-800 rounded text-sm">
               {error}
             </div>
           )}
 
-          {/* Content */}
+          {!loading && !error && tabPosts.length === 0 && (
+            <div className="py-24 text-center border border-dashed border-slate-200 rounded-lg bg-slate-50">
+              <p className="text-slate-900 font-medium">No active listings</p>
+              <p className="text-slate-500 text-sm mt-1">Check back later for new {activeTab === "research" ? "research positions" : "events"}.</p>
+            </div>
+          )}
+
           {!loading && !error && (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {tabPosts.length === 0 && (
-                <div className="card-surface col-span-full flex flex-col items-center justify-center rounded-2xl p-10 text-center text-slate-600">
-                  <div className="mb-3 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700">
-                    {activeTab === "research" ? "Research" : "ACM"}
-                  </div>
-                  <p className="text-lg font-semibold text-slate-900">No opportunities yet</p>
-                  <p className="mt-1 max-w-md text-sm text-slate-600">
-                    Faculty will publish new opportunities soon. Check back or visit the other tab to see what is available.
-                  </p>
-                </div>
-              )}
-
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {tabPosts.map((post) => (
-                <article
+                <div
                   key={post.id}
-                  className="card-surface flex h-full flex-col justify-between rounded-2xl p-5 transition hover:-translate-y-1 hover:shadow-lg"
+                  className="group flex flex-col justify-between bg-white border border-slate-200 p-6 rounded-lg transition-all hover:border-indigo-300 hover:shadow-sm"
                 >
-                  <div className="space-y-3">
-                    <span
-                      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
-                        post.type === "research"
-                          ? "bg-blue-50 text-blue-700"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
-                    >
-                      <span className="h-2 w-2 rounded-full bg-current" />
-                      {post.type === "research" ? "Research" : "ACM Activity"}
-                    </span>
+                  <div>
+                    {/* METADATA ROW */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase border border-slate-200 px-2 py-0.5 rounded-sm">
+                        {post.type === "research" ? "Research Domain" : "SIG Activity"}
+                      </span>
+                      <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold uppercase tracking-wide border border-emerald-100">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        {post.type === "research" ? "Applications Open" : "Registration Open"}
+                      </span>
+                    </div>
 
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      {post.title ?? "Untitled"}
+                    {/* TITLE & DESC */}
+                    <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-indigo-900 leading-tight">
+                      {post.title ?? "Untitled Opportunity"}
                     </h3>
-
-                    {post.description && (
-                      <p className="text-sm text-slate-600 line-clamp-3">
-                        {post.description}
-                      </p>
-                    )}
+                    <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed mb-6">
+                      {post.description ?? "No description provided."}
+                    </p>
                   </div>
 
-                  <Link
-                    href={`/apply/${post.id}`}
-                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                  >
-                    Apply Now
-                    <span aria-hidden className="text-base">→</span>
-                  </Link>
-                </article>
+                  {/* ACTION */}
+                  <div className="pt-5 border-t border-slate-100">
+                    <Link
+                      href={`/apply/${post.id}`}
+                      className="inline-flex items-center text-sm font-semibold text-indigo-700 hover:text-indigo-900 transition-colors"
+                    >
+                      View Details
+                      <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
               ))}
             </div>
           )}
-        </section>
+        </div>
       </main>
 
-      <footer className="relative z-10 border-t border-slate-200 bg-white/80 py-6 backdrop-blur">
-        <p className="text-center text-sm text-slate-500">
-          Faculty Opportunities Portal · Built for students and faculty collaboration
-        </p>
+      <footer className="border-t border-slate-200 bg-white py-8 mt-12">
+        <div className="container-academic text-center md:text-left flex flex-col md:flex-row justify-between items-center text-xs text-slate-400">
+          <p>© {new Date().getFullYear()} SRM ACM SIGAPP. All rights reserved.</p>
+          <div className="mt-2 md:mt-0">
+            <span className="mx-2">Privacy</span>
+            <span className="mx-2">Terms</span>
+          </div>
+        </div>
       </footer>
     </div>
   );
