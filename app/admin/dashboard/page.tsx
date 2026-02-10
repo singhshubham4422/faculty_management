@@ -2,6 +2,7 @@
 
 import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 /* ================= TYPES ================= */
 
@@ -29,283 +30,181 @@ type Post = {
 export default function AdminDashboardPage() {
   const router = useRouter();
 
-  const [isChecking, setIsChecking] = useState(true);
+  const [checking, setChecking] = useState(true);
 
-  const [applications, setApplications] = useState<Application[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
 
-  const [loadingApps, setLoadingApps] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingApps, setLoadingApps] = useState(true);
 
-  const [errorApps, setErrorApps] = useState<string | null>(null);
   const [errorPosts, setErrorPosts] = useState<string | null>(null);
+  const [errorApps, setErrorApps] = useState<string | null>(null);
 
   const [formTitle, setFormTitle] = useState("");
   const [formDescription, setFormDescription] = useState("");
   const [formType, setFormType] = useState<"research" | "club" | "">("");
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  /* ================= AUTH CHECK ================= */
+  /* ================= AUTH ================= */
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin");
-
-    if (isAdmin !== "true") {
+    const ok = localStorage.getItem("isAdmin");
+    if (ok !== "true") {
       router.push("/admin");
       return;
     }
-
-    setIsChecking(false);
-    fetchPosts();
-    fetchApplications();
+    setChecking(false);
+    loadPosts();
+    loadApplications();
   }, [router]);
 
-  /* ================= APPLICATIONS ================= */
+  /* ================= DATA ================= */
 
-  const fetchApplications = async () => {
+  const loadPosts = async () => {
+    setLoadingPosts(true);
+    const { data, error } = await supabase
+      .from("posts")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) setErrorPosts(error.message);
+    else setPosts(data || []);
+    setLoadingPosts(false);
+  };
+
+  const loadApplications = async () => {
     setLoadingApps(true);
-    setErrorApps(null);
+    const { data, error } = await supabase
+      .from("applications")
+      .select(
+        `
+        id,
+        student_name,
+        email,
+        mobile,
+        resume_url,
+        created_at,
+        posts(title,type)
+      `
+      )
+      .order("created_at", { ascending: false });
 
-    try {
-      const res = await fetch("/api/admin/applications");
-      const json = await res.json();
-
-      if (!res.ok) {
-        setErrorApps("Failed to load applications");
-        return;
-      }
-
-      setApplications(Array.isArray(json) ? json : []);
-    } catch {
-      setErrorApps("Network error while loading applications");
-    } finally {
-      setLoadingApps(false);
+    if (error) {
+      setErrorApps(error.message);
+    } else {
+      const mapped = (data || []).map((row: any) => ({
+        id: row.id,
+        student_name: row.student_name,
+        email: row.email,
+        mobile: row.mobile,
+        resume_url: row.resume_url,
+        created_at: row.created_at,
+        post_title: row.posts?.title ?? "",
+        post_type: row.posts?.type ?? "",
+      }));
+      setApplications(mapped);
     }
+    setLoadingApps(false);
   };
 
   /* ================= POSTS ================= */
 
-  const fetchPosts = async () => {
-    setLoadingPosts(true);
-    setErrorPosts(null);
-
-    try {
-      const res = await fetch("/api/admin/posts");
-      const json = await res.json();
-
-      if (!res.ok) {
-        setErrorPosts("Failed to load posts");
-        return;
-      }
-
-      setPosts(Array.isArray(json) ? json : []);
-    } catch {
-      setErrorPosts("Network error while loading posts");
-    } finally {
-      setLoadingPosts(false);
-    }
-  };
-
-  /* ================= POST FORM ================= */
-
-  const handlePostSubmit = async (e: FormEvent) => {
+  const savePost = async (e: FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-    setErrorPosts(null);
+    if (!formTitle || !formDescription || !formType) return;
 
-    if (!formTitle || !formDescription || !formType) {
-      setErrorPosts("All fields are required");
-      setSubmitting(false);
-      return;
-    }
+    setSaving(true);
 
-    try {
-      const res = await fetch("/api/admin/posts", {
-        method: editingPostId ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: editingPostId,
-          title: formTitle,
-          description: formDescription,
-          type: formType,
-        }),
-      });
+    const payload = {
+      title: formTitle,
+      description: formDescription,
+      type: formType,
+    };
 
-      if (!res.ok) {
-        setErrorPosts("Failed to save post");
-        return;
-      }
+    const res = editingPostId
+      ? await supabase.from("posts").update(payload).eq("id", editingPostId)
+      : await supabase.from("posts").insert(payload);
 
+    if (!res.error) {
       setFormTitle("");
       setFormDescription("");
       setFormType("");
       setEditingPostId(null);
-      fetchPosts();
-    } catch {
-      setErrorPosts("Network error while saving post");
-    } finally {
-      setSubmitting(false);
+      loadPosts();
     }
+
+    setSaving(false);
   };
 
-  const handleDeletePost = async (id: string) => {
+  const deletePost = async (id: string) => {
     if (!confirm("Delete this post?")) return;
-
-    try {
-      const res = await fetch(`/api/admin/posts?id=${id}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        setPosts((prev) => prev.filter((p) => p.id !== id));
-      } else {
-        setErrorPosts("Failed to delete post");
-      }
-    } catch {
-      setErrorPosts("Network error while deleting post");
-    }
+    await supabase.from("posts").delete().eq("id", id);
+    loadPosts();
   };
 
-  const handleEditPost = (post: Post) => {
-    setFormTitle(post.title || "");
-    setFormDescription(post.description || "");
-    setFormType(post.type);
-    setEditingPostId(post.id);
-  };
-
-  const handleLogout = () => {
+  const logout = () => {
     localStorage.removeItem("isAdmin");
     router.push("/admin");
   };
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-
-  /* ================= UI ================= */
-
-  if (isChecking) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        Checking admin access…
-      </div>
-    );
-  }
+  if (checking) return <p className="p-6">Checking access…</p>;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
-            <p className="text-sm text-slate-600">
-              Manage posts & applications
-            </p>
-          </div>
+    <div className="p-6 max-w-6xl mx-auto space-y-10">
+      <header className="flex justify-between">
+        <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
+        <button onClick={logout} className="text-red-600">Logout</button>
+      </header>
 
-          <button
-            onClick={handleLogout}
-            className="text-sm font-semibold text-red-600"
-          >
-            Logout
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Create / Edit Post</h2>
+        <form onSubmit={savePost} className="space-y-3">
+          <input className="border p-2 w-full" placeholder="Title" value={formTitle} onChange={e => setFormTitle(e.target.value)} />
+          <textarea className="border p-2 w-full" placeholder="Description" value={formDescription} onChange={e => setFormDescription(e.target.value)} />
+          <select className="border p-2 w-full" value={formType} onChange={e => setFormType(e.target.value as any)}>
+            <option value="">Select type</option>
+            <option value="research">Research</option>
+            <option value="club">ACM</option>
+          </select>
+          <button disabled={saving} className="bg-black text-white px-4 py-2">
+            {editingPostId ? "Update" : "Create"}
           </button>
-        </header>
+        </form>
+      </section>
 
-        {/* POSTS */}
-        <section className="mb-10 rounded-xl bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold">Posts</h2>
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Posts</h2>
+        {loadingPosts ? "Loading…" : posts.map(p => (
+          <div key={p.id} className="border-b py-2 flex justify-between">
+            <div>
+              <p className="font-semibold">{p.title}</p>
+              <p className="text-sm">{p.type}</p>
+            </div>
+            <div className="space-x-2">
+              <button onClick={() => {
+                setEditingPostId(p.id);
+                setFormTitle(p.title ?? "");
+                setFormDescription(p.description ?? "");
+                setFormType(p.type);
+              }}>Edit</button>
+              <button className="text-red-600" onClick={() => deletePost(p.id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </section>
 
-          <form onSubmit={handlePostSubmit} className="mb-6 space-y-3">
-            <input
-              placeholder="Title"
-              value={formTitle}
-              onChange={(e) => setFormTitle(e.target.value)}
-              className="w-full rounded border p-2"
-            />
-            <textarea
-              placeholder="Description"
-              value={formDescription}
-              onChange={(e) => setFormDescription(e.target.value)}
-              className="w-full rounded border p-2"
-            />
-            <select
-              value={formType}
-              onChange={(e) => setFormType(e.target.value as any)}
-              className="w-full rounded border p-2"
-            >
-              <option value="">Select type</option>
-              <option value="research">Research</option>
-              <option value="club">ACM</option>
-            </select>
-
-            <button
-              disabled={submitting}
-              className="rounded bg-black px-4 py-2 text-white"
-            >
-              {editingPostId ? "Update" : "Create"}
-            </button>
-          </form>
-
-          {loadingPosts ? (
-            <p>Loading posts…</p>
-          ) : posts.length === 0 ? (
-            <p className="text-sm text-slate-500">No posts yet.</p>
-          ) : (
-            posts.map((p) => (
-              <div
-                key={p.id}
-                className="mb-3 flex justify-between border-b pb-2"
-              >
-                <div>
-                  <p className="font-semibold">{p.title}</p>
-                  <p className="text-xs text-slate-500">
-                    {formatDate(p.created_at)}
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <button onClick={() => handleEditPost(p)}>Edit</button>
-                  <button
-                    onClick={() => handleDeletePost(p.id)}
-                    className="text-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </section>
-
-        {/* APPLICATIONS */}
-        <section className="rounded-xl bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold">Applications</h2>
-
-          {loadingApps ? (
-            <p>Loading applications…</p>
-          ) : applications.length === 0 ? (
-            <p className="text-sm text-slate-500">No applications yet.</p>
-          ) : (
-            applications.map((a) => (
-              <div key={a.id} className="border-b py-3">
-                <p className="font-semibold">{a.student_name}</p>
-                <p className="text-sm text-slate-600">{a.post_title}</p>
-                {a.resume_url && (
-                  <a
-                    href={a.resume_url}
-                    target="_blank"
-                    className="text-indigo-600 text-sm"
-                  >
-                    View Resume
-                  </a>
-                )}
-              </div>
-            ))
-          )}
-        </section>
-      </div>
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Applications</h2>
+        {loadingApps ? "Loading…" : applications.map(a => (
+          <div key={a.id} className="border-b py-2">
+            <p className="font-semibold">{a.student_name}</p>
+            <p className="text-sm">{a.post_title}</p>
+            {a.resume_url && <a className="text-indigo-600" href={a.resume_url} target="_blank">View Resume</a>}
+          </div>
+        ))}
+      </section>
     </div>
   );
 }

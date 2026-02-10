@@ -47,28 +47,18 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 text-slate-900">
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-indigo-50" aria-hidden />
-      <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-xl backdrop-blur">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
-            🔒
-          </div>
-          <div>
-            <p className="text-sm font-medium text-indigo-700">Faculty Admin Login</p>
-            <h1 className="text-xl font-semibold text-slate-900">Secure access</h1>
-          </div>
-        </div>
-
-        <p className="mt-3 text-sm text-slate-600">
-          Enter the admin password to continue. Sessions stay active only in this browser.
+    <div className="flex min-h-screen items-center justify-center bg-white text-black">
+      <div className="w-full max-w-sm rounded border border-gray-200 bg-white p-6 shadow-sm">
+        <h1 className="text-lg font-semibold">Admin Login</h1>
+        <p className="mt-1 text-sm text-gray-700">
+          Enter the admin password to continue.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
             <label
               htmlFor="password"
-              className="block text-sm font-semibold text-slate-800"
+              className="block text-sm font-medium text-gray-800"
             >
               Password
             </label>
@@ -78,33 +68,25 @@ export default function AdminLoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
             />
           </div>
 
           {error && (
-            <div
-              className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-              role="alert"
-            >
-              <span aria-hidden>⚠️</span>
-              <p>{error}</p>
-            </div>
+            <p className="text-sm text-red-600" role="alert">
+              {error}
+            </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex w-full items-center justify-center rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
-
-        <p className="mt-4 text-xs text-slate-500">
-          Contact program leadership if you need access or forgot the password.
-        </p>
       </div>
     </div>
   );
