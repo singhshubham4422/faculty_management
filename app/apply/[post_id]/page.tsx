@@ -120,8 +120,8 @@ export default function ApplyPage() {
         err instanceof Error
           ? err.message
           : typeof err === "string"
-          ? err
-          : "Failed to submit application.";
+            ? err
+            : "Failed to submit application.";
       setFormError(message);
     } finally {
       setSubmitting(false);
@@ -181,15 +181,15 @@ export default function ApplyPage() {
                   htmlFor="studentName"
                   className="block text-sm font-medium text-slate-700"
                 >
-                  Student name
+                  Student Name
                 </label>
                 <input
                   id="studentName"
-                  placeholder="e.g., Ayesha Khan"
+                  placeholder="e.g. John Doe"
                   value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
                   required
-                  className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
+                  className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
 
@@ -199,16 +199,16 @@ export default function ApplyPage() {
                     htmlFor="email"
                     className="block text-sm font-medium text-slate-700"
                   >
-                    Email
+                    Institutional Email
                   </label>
                   <input
                     id="email"
                     type="email"
-                    placeholder="e.g., ayesha@example.com"
+                    placeholder="e.g. john@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
+                    className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                   />
                 </div>
 
@@ -217,15 +217,15 @@ export default function ApplyPage() {
                     htmlFor="mobile"
                     className="block text-sm font-medium text-slate-700"
                   >
-                    Mobile
+                    Mobile Number
                   </label>
                   <input
                     id="mobile"
-                    placeholder="e.g., 0300 1234567"
+                    placeholder="e.g. +91 98765 43210"
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
                     required
-                    className="block w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
+                    className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -235,45 +235,45 @@ export default function ApplyPage() {
                   htmlFor="resume"
                   className="block text-sm font-medium text-slate-700"
                 >
-                  Resume (PDF)
+                  Curriculum Vitae / Resume
                 </label>
-                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3">
+                <div className="rounded-md border border-slate-300 bg-slate-50 px-4 py-3">
                   <input
                     id="resume"
                     type="file"
                     accept=".pdf"
                     onChange={onFileChange}
                     required
-                    className="block w-full text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 file:shadow-sm file:ring-1 file:ring-slate-200 hover:file:bg-slate-50"
+                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                   />
                   <p className="mt-2 text-xs text-slate-500">
-                    PDF only, up to 2MB.
+                    PDF only, up to 2MB. 1-page resume preferred.
                   </p>
                 </div>
               </div>
 
               <div className="space-y-2">
                 {formError && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {formError}
                   </div>
                 )}
                 {success && (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                    Application submitted!
+                  <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    Application submitted successfully. We will review your candidacy and contact you shortly.
                   </div>
                 )}
               </div>
 
-              <div className="pt-1">
+              <div className="pt-2">
                 <button
                   disabled={submitting}
-                  className="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center rounded-md bg-indigo-900 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {submitting ? "Submitting…" : "Submit application"}
+                  {submitting ? "Submitting..." : "Submit Candidacy"}
                 </button>
-                <p className="mt-3 text-center text-xs text-slate-500">
-                  Double-check your details before submitting.
+                <p className="mt-4 text-center text-xs text-slate-500">
+                  By submitting, you declare that all provided information is accurate.
                 </p>
               </div>
             </form>
