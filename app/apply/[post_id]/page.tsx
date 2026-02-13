@@ -152,34 +152,33 @@ export default function ApplyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#F8F9FA] font-sans text-slate-900">
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-xl">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <div className="mb-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Student application
+          <div className="rounded-sm border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="mb-8">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+                Student Application
               </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+              <h1 className="text-3xl font-bold tracking-tight text-[#003262] font-serif">
                 Apply for: {post?.title}
               </h1>
               {post?.description ? (
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                <p className="mt-4 text-base leading-relaxed text-slate-600">
                   {post.description}
                 </p>
               ) : (
-                <p className="mt-2 text-sm text-slate-600">
-                  Fill out the form below. We’ll review your application and get
-                  back to you.
+                <p className="mt-4 text-base text-slate-600">
+                  Please complete the form below to submit your candidacy.
                 </p>
               )}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label
                   htmlFor="studentName"
-                  className="block text-sm font-medium text-slate-700"
+                  className="block text-sm font-semibold text-[#003262]"
                 >
                   Student Name
                 </label>
@@ -189,33 +188,33 @@ export default function ApplyPage() {
                   value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
                   required
-                  className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  className="block w-full rounded-sm border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-[#003262] focus:ring-1 focus:ring-[#003262] sm:text-sm"
                 />
               </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-slate-700"
+                    className="block text-sm font-semibold text-[#003262]"
                   >
                     Institutional Email
                   </label>
                   <input
                     id="email"
                     type="email"
-                    placeholder="e.g. john@gmail.com"
+                    placeholder="e.g. john@srmist.edu.in"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                    className="block w-full rounded-sm border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-[#003262] focus:ring-1 focus:ring-[#003262] sm:text-sm"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label
                     htmlFor="mobile"
-                    className="block text-sm font-medium text-slate-700"
+                    className="block text-sm font-semibold text-[#003262]"
                   >
                     Mobile Number
                   </label>
@@ -225,7 +224,7 @@ export default function ApplyPage() {
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
                     required
-                    className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                    className="block w-full rounded-sm border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-[#003262] focus:ring-1 focus:ring-[#003262] sm:text-sm"
                   />
                 </div>
               </div>
@@ -233,47 +232,47 @@ export default function ApplyPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="resume"
-                  className="block text-sm font-medium text-slate-700"
+                  className="block text-sm font-semibold text-[#003262]"
                 >
                   Curriculum Vitae / Resume
                 </label>
-                <div className="rounded-md border border-slate-300 bg-slate-50 px-4 py-3">
+                <div className="rounded-sm border border-slate-300 bg-slate-50 px-4 py-4 transition-colors hover:bg-white hover:border-[#003262]">
                   <input
                     id="resume"
                     type="file"
                     accept=".pdf"
                     onChange={onFileChange}
                     required
-                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-wide file:bg-[#003262] file:text-white hover:file:bg-[#002244] cursor-pointer"
                   />
                   <p className="mt-2 text-xs text-slate-500">
-                    PDF only, up to 2MB. 1-page resume preferred.
+                    PDF format only. Maximum size 2MB.
                   </p>
                 </div>
               </div>
 
               <div className="space-y-2">
                 {formError && (
-                  <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    {formError}
+                  <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    <span className="font-bold">Error:</span> {formError}
                   </div>
                 )}
                 {success && (
-                  <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                    Application submitted successfully. We will review your candidacy and contact you shortly.
+                  <div className="rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <span className="font-bold">Success:</span> Application submitted successfully. Faculty will review your candidacy.
                   </div>
                 )}
               </div>
 
-              <div className="pt-2">
+              <div className="pt-4">
                 <button
                   disabled={submitting}
-                  className="inline-flex w-full items-center justify-center rounded-md bg-indigo-900 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center rounded-sm bg-[#FDB515] px-4 py-3 text-sm font-bold uppercase tracking-widest text-[#003262] shadow-sm hover:bg-[#E0A000] focus:outline-none focus:ring-2 focus:ring-[#FDB515] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
                 >
-                  {submitting ? "Submitting..." : "Submit Candidacy"}
+                  {submitting ? "Processing..." : "Submit Application"}
                 </button>
-                <p className="mt-4 text-center text-xs text-slate-500">
-                  By submitting, you declare that all provided information is accurate.
+                <p className="mt-4 text-center text-xs text-slate-400">
+                  By submitting this form, you certify that the information provided is accurate and complete.
                 </p>
               </div>
             </form>

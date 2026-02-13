@@ -160,18 +160,18 @@ export default function AdminDashboardPage() {
   if (checking) return <div className="flex h-screen items-center justify-center text-slate-500">Verifying access...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 border-t-4 border-indigo-900">
+    <div className="min-h-screen bg-[#F8F9FA] text-slate-900 border-t-4 border-[#FDB515]">
 
       {/* AUTH HEADER */}
       <header className="bg-white border-b border-slate-200">
         <div className="container-academic flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center bg-indigo-900 text-white font-serif font-bold text-lg rounded-sm">S</div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900">SRM ACM SIGAPP | Faculty Dashboard</h1>
+            <div className="flex h-8 w-8 items-center justify-center bg-[#003262] text-white font-serif font-bold text-lg rounded-sm shadow-sm">S</div>
+            <h1 className="text-lg font-bold tracking-tight text-[#003262] font-serif">SRM ACM SIGAPP | Faculty Dashboard</h1>
           </div>
           <button
             onClick={logout}
-            className="text-sm font-medium text-slate-500 hover:text-red-700 transition-colors"
+            className="text-xs font-bold uppercase tracking-wide text-slate-500 hover:text-red-700 transition-colors"
           >
             Sign Out
           </button>
@@ -181,19 +181,19 @@ export default function AdminDashboardPage() {
       <main className="container-academic py-10 space-y-12">
 
         {/* POST EDITOR */}
-        <section className="bg-white p-6 md:p-8 rounded-lg border border-slate-200 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
+        <section className="bg-white p-6 md:p-8 rounded-sm border border-slate-200 shadow-sm">
+          <h2 className="text-xl font-bold text-[#003262] font-serif mb-6 flex items-center gap-2">
             {editingPostId ? "Edit Opportunity" : "Create New Opportunity"}
             {editingPostId && (
-              <span className="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded">Editing ID: {editingPostId}</span>
+              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-sm uppercase tracking-wide">Editing ID: {editingPostId}</span>
             )}
           </h2>
           <form onSubmit={savePost} className="max-w-3xl space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Project Title</label>
+                <label className="text-sm font-semibold text-[#003262]">Project Title</label>
                 <input
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-sm border border-slate-300 px-3 py-2 text-sm focus:border-[#003262] focus:ring-1 focus:ring-[#003262]"
                   placeholder="e.g. AI for Healthcare Research"
                   value={formTitle}
                   onChange={e => setFormTitle(e.target.value)}
@@ -201,9 +201,9 @@ export default function AdminDashboardPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Category</label>
+                <label className="text-sm font-semibold text-[#003262]">Category</label>
                 <select
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white"
+                  className="w-full rounded-sm border border-slate-300 px-3 py-2 text-sm focus:border-[#003262] focus:ring-1 focus:ring-[#003262] bg-white"
                   value={formType}
                   onChange={e => setFormType(e.target.value as any)}
                   required
@@ -216,9 +216,9 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Description</label>
+              <label className="text-sm font-semibold text-[#003262]">Description</label>
               <textarea
-                className="w-full h-32 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-y"
+                className="w-full h-32 rounded-sm border border-slate-300 px-3 py-2 text-sm focus:border-[#003262] focus:ring-1 focus:ring-[#003262] resize-y"
                 placeholder="Describe the opportunity, requirements, and eligibility..."
                 value={formDescription}
                 onChange={e => setFormDescription(e.target.value)}
@@ -226,11 +226,11 @@ export default function AdminDashboardPage() {
               />
             </div>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-3 pt-4">
               <button
                 disabled={saving}
                 type="submit"
-                className="rounded-md bg-indigo-900 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-800 disabled:opacity-50 transition-all"
+                className="rounded-sm bg-[#003262] px-6 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-sm hover:bg-[#002244] disabled:opacity-50 transition-all border border-transparent"
               >
                 {saving ? "Saving..." : (editingPostId ? "Update Opportunity" : "Publish Opportunity")}
               </button>
@@ -238,7 +238,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="rounded-sm border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-slate-600 hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -247,34 +247,34 @@ export default function AdminDashboardPage() {
           </form>
         </section>
 
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className="grid lg:grid-cols-2 gap-12">
 
           {/* MANAGE POSTS */}
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-900">Active Postings</h2>
-              <span className="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-1 rounded-full">{posts.length}</span>
+            <div className="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
+              <h2 className="text-lg font-bold text-[#003262] font-serif uppercase tracking-wide">Active Postings</h2>
+              <span className="text-xs font-bold text-[#003262] bg-[#FDB515] px-2 py-0.5 rounded-sm">{posts.length}</span>
             </div>
 
-            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
               {loadingPosts ? (
                 <div className="p-6 text-center text-sm text-slate-500 animate-pulse">Loading posts...</div>
               ) : posts.length === 0 ? (
                 <div className="p-8 text-center text-sm text-slate-500">No active posts found.</div>
               ) : (
-                <ul className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
+                <ul className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
                   {posts.map(p => (
-                    <li key={p.id} className="flex items-start justify-between p-4 hover:bg-slate-50 transition-colors group">
+                    <li key={p.id} className="flex items-start justify-between p-5 hover:bg-slate-50 transition-colors group">
                       <div className="min-w-0 pr-4">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-slate-900 truncate">{p.title}</p>
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${p.type === "research" ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-amber-50 text-amber-700 border-amber-100"
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-[#003262] truncate text-base font-serif">{p.title}</p>
+                          <span className={`inline-flex items-center rounded-sm px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide border ${p.type === "research" ? "bg-blue-50 text-blue-800 border-blue-100" : "bg-amber-50 text-amber-800 border-amber-100"
                             }`}>
                             {p.type === "research" ? "Research" : "ACM"}
                           </span>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500 line-clamp-1">{p.description}</p>
-                        <p className="mt-1 text-[10px] text-slate-400">ID: {p.id}</p>
+                        <p className="text-sm text-slate-600 line-clamp-1 mb-1">{p.description}</p>
+                        <p className="text-[10px] text-slate-400 font-mono">ID: {p.id}</p>
                       </div>
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -285,12 +285,12 @@ export default function AdminDashboardPage() {
                             setFormType(p.type);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
-                          className="text-xs font-medium text-indigo-600 hover:text-indigo-900 px-2 py-1 hover:bg-indigo-50 rounded"
+                          className="text-xs font-bold uppercase tracking-wide text-[#003262] hover:text-[#C4820E] px-2 py-1 hover:bg-slate-100 rounded-sm"
                         >
                           Edit
                         </button>
                         <button
-                          className="text-xs font-medium text-red-600 hover:text-red-900 px-2 py-1 hover:bg-red-50 rounded"
+                          className="text-xs font-bold uppercase tracking-wide text-red-600 hover:text-red-800 px-2 py-1 hover:bg-red-50 rounded-sm"
                           onClick={() => deletePost(p.id)}
                         >
                           Delete
@@ -305,35 +305,35 @@ export default function AdminDashboardPage() {
 
           {/* VIEW APPLICATIONS */}
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-900">Recent Applications</h2>
-              <span className="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-1 rounded-full">{applications.length}</span>
+            <div className="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
+              <h2 className="text-lg font-bold text-[#003262] font-serif uppercase tracking-wide">Recent Applications</h2>
+              <span className="text-xs font-bold text-[#003262] bg-[#FDB515] px-2 py-0.5 rounded-sm">{applications.length}</span>
             </div>
 
-            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-sm">
               {loadingApps ? (
                 <div className="p-6 text-center text-sm text-slate-500 animate-pulse">Loading applications...</div>
               ) : applications.length === 0 ? (
                 <div className="p-8 text-center text-sm text-slate-500">No applications received yet.</div>
               ) : (
-                <ul className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
+                <ul className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
                   {applications.map(a => (
-                    <li key={a.id} className="p-4 hover:bg-slate-50 transition-colors">
+                    <li key={a.id} className="p-5 hover:bg-slate-50 transition-colors">
                       <div className="flex justify-between items-start mb-1">
-                        <p className="font-semibold text-slate-900">{a.student_name}</p>
-                        <span className="text-[10px] text-slate-400">
+                        <p className="font-bold text-[#003262] text-base">{a.student_name}</p>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
                           {new Date(a.created_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 mb-2">Applied for: <span className="font-medium text-slate-700">{a.post_title}</span></p>
-                      <div className="flex flex-wrap gap-3 text-xs">
+                      <p className="text-xs text-slate-500 mb-3">Applied for: <span className="font-semibold text-[#003262]">{a.post_title}</span></p>
+                      <div className="flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wide">
                         {a.email && (
-                          <a href={`mailto:${a.email}`} className="text-indigo-600 hover:underline flex items-center gap-1">
+                          <a href={`mailto:${a.email}`} className="text-[#003262] hover:text-[#C4820E] flex items-center gap-1 transition-colors">
                             Email
                           </a>
                         )}
                         {a.resume_url && (
-                          <a href={a.resume_url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline flex items-center gap-1 font-medium">
+                          <a href={a.resume_url} target="_blank" rel="noopener noreferrer" className="text-[#003262] hover:text-[#C4820E] flex items-center gap-1 transition-colors">
                             View Resume →
                           </a>
                         )}
