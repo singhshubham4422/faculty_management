@@ -100,3 +100,17 @@ p {
 .nav-link:hover, .nav-link.active {
   border-bottom-color: var(--secondary);
 }
+
+/* Tab content fade when switching tabs */
+@keyframes tabContentFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.tab-content-fade-in {
+  animation: tabContentFadeIn 0.2s ease-out;
+}

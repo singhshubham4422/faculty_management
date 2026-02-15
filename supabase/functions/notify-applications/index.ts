@@ -9,7 +9,6 @@ serve(async (req) => {
       return new Response("Missing application_id", { status: 400 });
     }
 
-    // ENV
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
@@ -17,13 +16,10 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    // 🔍 FETCH APPLICATION + POST
     const { data, error } = await supabase
       .from("applications")
       .select(`
-        student_name,
-        email,
-        mobile,
+        student_id,
         resume_url,
         posts ( title )
       `)
@@ -35,19 +31,20 @@ serve(async (req) => {
       return new Response("Application not found", { status: 404 });
     }
 
+    const { data: userData } = await supabase.auth.admin.getUserById(data.student_id);
+    const email = userData?.user?.email ?? "—";
+
     const message = `
 📥 *New Application*
 
 📌 *${data.posts?.title ?? "Opportunity"}*
-🧑 ${data.student_name}
-📧 ${data.email}
-📱 ${data.mobile}
+🧑 Student ID: ${data.student_id}
+📧 ${email}
 
 📄 Resume:
-${data.resume_url}
+${data.resume_url ?? "—"}
 `;
 
-    // 🚀 SEND TO TELEGRAM
     const telegramRes = await fetch(
       `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
       {

@@ -2,29 +2,16 @@ import Section from "@/components/Section";
 import Header from "@/components/Header";
 import ProfileCard from "@/components/ProfileCard";
 
+type FacultyMember = {
+    name: string;
+    title: string;
+    image?: string;
+    link?: string;
+    isFeatured?: boolean;
+};
+
 export default function FacultyPage() {
-    const FACULTY_MEMBERS = [
-        {
-            name: "Dr. A. Smitha",
-            title: "Senior Researcher",
-            isFeatured: false,
-        },
-        {
-            name: "Prof. R. Kumar",
-            title: "Domain Lead – AI/ML",
-            isFeatured: false,
-        },
-        {
-            name: "Dr. S. Johnson",
-            title: "Technical Mentor",
-            isFeatured: false,
-        },
-        {
-            name: "Mr. K. Patel",
-            title: "Industry Liaison",
-            isFeatured: false,
-        },
-    ];
+    const FACULTY_MEMBERS: FacultyMember[] = [];
 
     return (
         <div className="min-h-screen bg-[#F8F9FA] font-sans text-slate-900">
@@ -57,7 +44,7 @@ export default function FacultyPage() {
                             key={idx}
                             name={faculty.name}
                             title={faculty.title}
-                            isFeatured={false}
+                            isFeatured={faculty.isFeatured}
                         />
                     ))}
                 </div>

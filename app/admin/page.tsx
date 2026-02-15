@@ -2,9 +2,11 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,30 +17,45 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ password }),
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok || !data.success) {
-        const message =
-          data?.message || "Incorrect password. Please try again.";
-        setError(message);
+      if (authError) {
+        setError(authError.message);
         setLoading(false);
         return;
       }
 
-      // Mark this browser as having an active admin session
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("isAdmin", "true");
+      if (!authData.user) {
+        setError("Sign in failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        setError("Could not load your profile. Contact support.");
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
+
+      if (profile.role !== "admin") {
+        setError("You do not have admin access.");
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
       }
 
       router.push("/admin/dashboard");
+      router.refresh();
     } catch (err) {
       console.error("Admin login failed", err);
       setError("Something went wrong. Please try again.");
@@ -51,10 +68,27 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm rounded border border-gray-200 bg-white p-6 shadow-sm">
         <h1 className="text-lg font-semibold">Admin Login</h1>
         <p className="mt-1 text-sm text-gray-700">
-          Enter the admin password to continue.
+          Sign in with your admin account.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-800"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              required
+            />
+          </div>
           <div>
             <label
               htmlFor="password"
