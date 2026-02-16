@@ -20,26 +20,29 @@ export default function SignupPage() {
     setError(null);
     setMessage(null);
     setLoading(true);
+
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { error: authError } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: typeof window !== "undefined" ? window.location.origin + "/dashboard" : undefined },
+        options: {
+          emailRedirectTo:
+            typeof window !== "undefined"
+              ? `${window.location.origin}/dashboard`
+              : undefined,
+          data: {
+            full_name: fullName.trim(),
+            mobile: mobile.trim(),
+          },
+        },
       });
+
       if (authError) {
         setError(authError.message);
         setLoading(false);
         return;
       }
-      if (authData.user) {
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ full_name: fullName.trim(), mobile: mobile.trim() })
-          .eq("id", authData.user.id);
-        if (updateError) {
-          console.error("Profile update after signup:", updateError);
-        }
-      }
+
       setMessage("Check your email to confirm your account, then sign in.");
       setLoading(false);
     } catch {
