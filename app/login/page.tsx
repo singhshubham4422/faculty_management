@@ -64,6 +64,11 @@ function LoginForm() {
               required
             />
           </div>
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-sm font-medium text-[#003262] hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
           {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
           <button
             type="submit"
