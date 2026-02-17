@@ -3,8 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import type { User } from "@supabase/supabase-js";
 import Header from "@/components/Header";
+import { useAuth } from "@/components/AuthProvider";
 
 type Post = {
   id: string;
@@ -18,7 +18,7 @@ export default function ApplyPage() {
   const router = useRouter();
   const postId = post_id as string;
 
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [authChecked, setAuthChecked] = useState(false);
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,17 +28,13 @@ export default function ApplyPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) {
-        router.replace("/login?redirect=/apply/" + encodeURIComponent(postId));
-        return;
-      }
-      setUser(currentUser);
-      setAuthChecked(true);
-    };
-    init();
-  }, [postId, router]);
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/login?redirect=/apply/" + encodeURIComponent(postId));
+      return;
+    }
+    setAuthChecked(true);
+  }, [authLoading, postId, router, user]);
 
   useEffect(() => {
     if (!authChecked || !user) return;
@@ -76,13 +72,11 @@ export default function ApplyPage() {
       setFormError("Resume required");
       return;
     }
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    if (!currentUser) {
+    if (!user) {
       setFormError("Please login to apply.");
       router.replace("/login?redirect=/apply/" + encodeURIComponent(postId));
       return;
     }
-
     setSubmitting(true);
     try {
       const path = `resumes/${postId}-${crypto.randomUUID()}.pdf`;

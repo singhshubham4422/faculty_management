@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import type { User } from "@supabase/supabase-js";
-
-type Profile = {
-  full_name: string | null;
-  role: string;
-};
+import { useAuth } from "@/components/AuthProvider";
 
 type HeaderProps = {
   variant?: "default" | "home";
@@ -20,31 +13,10 @@ type HeaderProps = {
 export default function Header({ variant = "default", activeTab = "research", onTabChange }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
-
-  useEffect(() => {
-    const init = async () => {
-      const { data: { user: u } } = await supabase.auth.getUser();
-      setUser(u ?? null);
-      if (u) {
-        const { data: p } = await supabase.from("profiles").select("full_name, role").eq("id", u.id).single();
-        setProfile(p ?? null);
-      } else {
-        setProfile(null);
-      }
-      setAuthLoading(false);
-    };
-    init();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => init());
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user, profile, loading: authLoading, signOut } = useAuth();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
+    await signOut();
     router.push("/");
     router.refresh();
   };

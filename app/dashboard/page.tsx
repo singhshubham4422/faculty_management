@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import Header from "@/components/Header";
+import { useAuth } from "@/components/AuthProvider";
 
 type Profile = {
   full_name: string | null;
@@ -22,8 +23,8 @@ type ApplicationRow = {
 
 export default function StudentDashboardPage() {
   const router = useRouter();
+  const { user, profile: authProfile, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{ id: string; email?: string | null } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -34,16 +35,8 @@ export default function StudentDashboardPage() {
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: { user: u } } = await supabase.auth.getUser();
-      if (!u) {
-        router.replace("/login?redirect=/dashboard");
-        return;
-      }
-      setUser(u);
-      const { data: p } = await supabase.from("profiles").select("full_name, mobile").eq("id", u.id).single();
-      setProfile(p ?? null);
+  const loadApplications = useCallback(
+    async (studentId: string) => {
       const { data: apps, error: err } = await supabase
         .from("applications")
         .select(`
@@ -54,14 +47,23 @@ export default function StudentDashboardPage() {
           created_at,
           posts(title, type)
         `)
-        .eq("student_id", u.id)
+        .eq("student_id", studentId)
         .order("created_at", { ascending: false });
       if (err) setError(err.message);
       else setApplications((apps ?? []) as unknown as ApplicationRow[]);
-      setLoading(false);
-    };
-    load();
-  }, [router]);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/login?redirect=/dashboard");
+      return;
+    }
+    setProfile(authProfile ? { full_name: authProfile.full_name, mobile: authProfile.mobile } : null);
+    loadApplications(user.id).finally(() => setLoading(false));
+  }, [authLoading, authProfile, loadApplications, router, user]);
 
   const startEditProfile = () => {
     setEditFullName(profile?.full_name?.trim() ?? "");
