@@ -28,7 +28,7 @@ export default function SignupPage() {
         options: {
           emailRedirectTo:
             typeof window !== "undefined"
-              ? `${window.location.origin}/dashboard`
+              ? `${window.location.origin}/auth/callback`
               : undefined,
           data: {
             full_name: fullName.trim(),
