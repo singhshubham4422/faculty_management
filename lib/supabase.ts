@@ -1,4 +1,10 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __supabaseClient__: SupabaseClient | undefined;
+}
 
 export function createClient() {
   return createBrowserClient(
@@ -7,4 +13,8 @@ export function createClient() {
   );
 }
 
-export const supabase = createClient();
+export const supabase = globalThis.__supabaseClient__ ?? createClient();
+
+if (!globalThis.__supabaseClient__) {
+  globalThis.__supabaseClient__ = supabase;
+}

@@ -1,9 +1,9 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
-import type { User } from "@supabase/supabase-js";
+import type { Session, User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 type Profile = {
   full_name: string | null;
@@ -14,6 +14,8 @@ type Profile = {
 type AuthContextValue = {
   user: User | null;
   profile: Profile | null;
+  authReady: boolean;
+  profileLoading: boolean;
   loading: boolean;
   refreshSession: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -25,53 +27,129 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const profileRequestId = useRef(0);
 
-  const loadProfile = useCallback(async (nextUser: User | null) => {
-    if (!nextUser) {
-      setProfile(null);
-      return;
-    }
-    const { data } = await supabase
-      .from("profiles")
-      .select("full_name, mobile, role")
-      .eq("id", nextUser.id)
-      .single();
-    setProfile(data ?? null);
+  const resetAuthState = useCallback((ready = true) => {
+    setUser(null);
+    setProfile(null);
+    setProfileLoading(false);
+    profileRequestId.current += 1;
+    setAuthReady(ready);
   }, []);
 
-  const refreshSession = useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    const nextUser = data.session?.user ?? null;
+  const clearInvalidSession = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Best-effort cleanup only.
+    }
+    resetAuthState(true);
+  }, [resetAuthState]);
+
+  const loadProfile = useCallback(async (userId: string) => {
+    const requestId = ++profileRequestId.current;
+    setProfileLoading(true);
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, mobile, role")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (requestId !== profileRequestId.current) {
+        return;
+      }
+
+      if (error) {
+        setProfile(null);
+        return;
+      }
+
+      setProfile(data ?? null);
+    } catch {
+      if (requestId !== profileRequestId.current) {
+        return;
+      }
+      setProfile(null);
+    } finally {
+      if (requestId === profileRequestId.current) {
+        setProfileLoading(false);
+      }
+    }
+  }, []);
+
+  const applySession = useCallback((session: Session | null) => {
+    const nextUser = session?.user ?? null;
     setUser(nextUser);
-    await loadProfile(nextUser);
-    setLoading(false);
+    setAuthReady(true);
+
+    if (!nextUser) {
+      setProfile(null);
+      setProfileLoading(false);
+      profileRequestId.current += 1;
+      return;
+    }
+
+    void loadProfile(nextUser.id);
   }, [loadProfile]);
 
+  const shouldTreatAsInvalidSessionError = (errorMessage: string) => {
+    const normalized = errorMessage.toLowerCase();
+    return (
+      normalized.includes("invalid") ||
+      normalized.includes("jwt") ||
+      normalized.includes("refresh token") ||
+      normalized.includes("session not found")
+    );
+  };
+
+  const refreshSession = useCallback(async () => {
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        if (shouldTreatAsInvalidSessionError(sessionError.message ?? "")) {
+          await clearInvalidSession();
+          return;
+        }
+        resetAuthState(true);
+        return;
+      }
+
+      applySession(sessionData.session ?? null);
+    } catch {
+      resetAuthState(true);
+    }
+  }, [applySession, clearInvalidSession, resetAuthState]);
+
   useEffect(() => {
-    refreshSession();
-    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const nextUser = session?.user ?? null;
-      setUser(nextUser);
-      await loadProfile(nextUser);
-      setLoading(false);
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
+    resetAuthState(false);
+    void refreshSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      applySession(session);
+
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
         router.refresh();
       }
     });
+
     return () => listener.subscription.unsubscribe();
-  }, [loadProfile, refreshSession, router]);
+  }, [applySession, refreshSession, resetAuthState, router]);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
+    await clearInvalidSession();
     router.refresh();
-  }, [router]);
+  }, [clearInvalidSession, router]);
+
+  const loading = !authReady;
 
   const value = useMemo(
-    () => ({ user, profile, loading, refreshSession, signOut }),
-    [user, profile, loading, refreshSession, signOut]
+    () => ({ user, profile, authReady, profileLoading, loading, refreshSession, signOut }),
+    [user, profile, authReady, profileLoading, loading, refreshSession, signOut]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
