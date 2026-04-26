@@ -10,10 +10,13 @@ function AuthCallbackContent() {
   const hasExchanged = useRef(false);
 
   const code = searchParams.get("code");
+  const nextPath = searchParams.get("next");
+
+  const safeNextPath = nextPath && nextPath.startsWith("/") ? nextPath : "/login";
 
   useEffect(() => {
     if (!code) {
-      router.replace("/login");
+      router.replace(safeNextPath);
       return;
     }
 
@@ -34,7 +37,7 @@ function AuthCallbackContent() {
         return;
       }
 
-      router.replace("/login");
+      router.replace(safeNextPath);
     };
 
     exchange();
@@ -42,7 +45,7 @@ function AuthCallbackContent() {
     return () => {
       cancelled = true;
     };
-  }, [code, router]);
+  }, [code, router, safeNextPath]);
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 text-center">

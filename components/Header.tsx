@@ -26,6 +26,7 @@ export default function Header({ variant = "default", activeTab = "research", on
     { name: "About", href: "/about" },
     { name: "Faculty", href: "/faculty" },
     { name: "Events", href: "/events" },
+    { name: "Developers", href: "/developers" },
   ];
 
   const isActive = (path: string) => {

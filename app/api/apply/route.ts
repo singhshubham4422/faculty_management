@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+function requireEnv(name: string, value: string | undefined) {
+  if (!value) {
+    throw new Error(`Missing required env var: ${name}`);
+  }
+
+  return value;
+}
 
 /**
  * POST /api/apply
@@ -14,6 +19,9 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export async function POST(req: Request) {
   try {
     const supabase = await createServerSupabase();
+    const supabaseAdmin = getSupabaseAdmin();
+    const supabaseUrl = requireEnv("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
+    const anonKey = requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
     const {
       data: { user },
     } = await supabase.auth.getUser();

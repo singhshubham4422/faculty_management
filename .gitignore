@@ -1,3 +1,29 @@
+# dependencies
+node_modules/
+
+# next build files
+.next/
+out/
+
+# environment files
+.env.local
+.env*
+
+# logs
+*.log
+
+# reports
+report.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Vercel
+.vercel
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies

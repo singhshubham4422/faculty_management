@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function PATCH(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createServerSupabase();
+  const supabaseAdmin = getSupabaseAdmin();
   const {
     data: { user },
   } = await supabase.auth.getUser();

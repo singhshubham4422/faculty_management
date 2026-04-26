@@ -1,21 +1,60 @@
 "use client";
 
-import { FormEvent, useState, Suspense } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState, Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 function ResetPasswordForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [sessionReady, setSessionReady] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const code = searchParams.get("code");
+
+        if (!code) {
+            setSessionReady(true);
+            return;
+        }
+
+        let cancelled = false;
+
+        const exchange = async () => {
+            const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+            if (cancelled) {
+                return;
+            }
+
+            if (exchangeError) {
+                setError(exchangeError.message);
+            }
+
+            setSessionReady(true);
+        };
+
+        void exchange();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [searchParams]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
         setMessage(null);
         setLoading(true);
+
+        if (!sessionReady) {
+            setError("Please wait while we open your recovery session.");
+            setLoading(false);
+            return;
+        }
 
         try {
             const { error: authError } = await supabase.auth.updateUser({
@@ -27,10 +66,7 @@ function ResetPasswordForm() {
                 setLoading(false);
             } else {
                 setMessage("Password updated successfully.");
-                // Optional: Redirect after a brief delay so user sees the message
-                setTimeout(() => {
-                    router.push("/login");
-                }, 2000);
+                router.replace("/login");
             }
         } catch {
             setError("Something went wrong.");
@@ -61,10 +97,10 @@ function ResetPasswordForm() {
                     {message && <p className="text-sm text-green-600" role="alert">{message}</p>}
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !sessionReady}
                         className="w-full rounded bg-[#003262] px-3 py-2 text-sm font-medium text-white hover:bg-[#002244] disabled:opacity-70"
                     >
-                        {loading ? "Updating..." : "Update Password"}
+                        {loading ? "Updating..." : sessionReady ? "Update Password" : "Opening Recovery Session..."}
                     </button>
                 </form>
             </div>
